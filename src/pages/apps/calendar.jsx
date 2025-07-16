@@ -20,7 +20,6 @@ const AttendanceCalendar = () => {
   const [date, setDate] = useState(new Date());
   const [selectedRange, setSelectedRange] = useState(null);
   const calendarRef = useRef(null);
-
   // Attendance state
   const [calendarEvents, setCalendarEvents] = useState([]);
   const [loading, setLoading] = useState(true);
