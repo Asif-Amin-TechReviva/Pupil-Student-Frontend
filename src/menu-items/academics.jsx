@@ -31,6 +31,8 @@ const Academics= {
           title: <FormattedMessage id="Assignments" />,
           type: 'item',
           url: '/academics/view-assignments',
+          breadcrumbs: false,
+
           // target: true
         },
         {

@@ -25,6 +25,7 @@ import PaymentTable from 'pages/Parent/paymentTable';
 import Assignments from 'pages/Parent/assignments';
 import GradesIndex from 'pages/Parent/grades/GradesIndex';
 import TabAttendance from 'sections/apps/profiles/account/TabAttendance';
+import DenseTable from 'pages/Parent/Leave/leaveHistory';
 const AppChat = Loadable(lazy(() => import('pages/apps/chat')));
 const AppCalendar = Loadable(lazy(() => import('pages/apps/calendar')));
 
@@ -286,6 +287,10 @@ const MainRoutes = {
                     {
                       path: 'attendance',
                       element: <TabAttendance />
+                    },
+                    {
+                      path: 'leave',
+                      element: <DenseTable />
                     },
                     {
                       path: 'my-account',

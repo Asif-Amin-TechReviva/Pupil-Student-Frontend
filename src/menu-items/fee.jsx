@@ -32,12 +32,16 @@ const Fee= {
           title: <FormattedMessage id="All-Payments" />,
           type: 'item',
           url: '/fee/all-payments',
+          breadcrumbs: false,
+
           // target: true
         },  {
           id: 'Fee-Enquiry',
           title: <FormattedMessage id="Pay-Online" />,
           type: 'item',
           url: '/fee/pay-online',
+          breadcrumbs: false,
+
           // target: true
         },   
       ]

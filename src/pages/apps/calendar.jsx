@@ -859,6 +859,7 @@ const AttendanceCalendar = () => {
     const title = arg.event.title;
     const time = arg.event.extendedProps.time;
     const isDayView = view === 'timeGridDay';
+  
 
     return (
       <Box
@@ -883,17 +884,22 @@ const AttendanceCalendar = () => {
     );
   };
 
-  if (loading) return 
-  <Box sx={{
-    width: '100%',
-    height: '70vh',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
-  }}>
-  <LogoImageLoader />
-  </Box>
-  ;
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          height: '70vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <LogoImageLoader />
+      </Box>
+    );
+  }
+
 
   return (
     <Box

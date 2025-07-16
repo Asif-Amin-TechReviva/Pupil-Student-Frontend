@@ -141,74 +141,6 @@ ReactTable.propTypes = {
 // ==============================|| REACT TABLE - BASIC ||============================== //
 
 export default function TabAttendance() {
-  const [open, setOpen] = useState(false);
-  const data = makeData(10);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [editRowData, setEditRowData] = useState(null);
-
-  const handleOpenDialog = () => setOpen(true);
-  const handleCloseDialog = () => setOpen(false);
-  const handleEdit = (row) => {
-    setEditRowData(row);
-    setOpenEdit(true);
-  };
-
-  const handleCloseEdit = () => {
-    setEditRowData(null);
-    setOpenEdit(false);
-  };
-
-  const columns = useMemo(
-    () => [
-      {
-        header: 'Applied For',
-        footer: 'First Name',
-        accessorKey: 'firstName'
-      },
-      {
-        header: 'Status',
-        footer: 'Status',
-        accessorKey: 'status',
-        cell: (props) => {
-          switch (props.getValue()) {
-            case 'Complicated':
-              return <Chip color="error" label="Complicated" size="small" variant="light" />;
-            case 'Relationship':
-              return <Chip color="success" label="Relationship" size="small" variant="light" />;
-            case 'Single':
-            default:
-              return <Chip color="info" label="Single" size="small" variant="light" />;
-          }
-        }
-      },
-      {
-        header: 'Applied On',
-        footer: 'Email',
-        accessorKey: 'email'
-      },
-      {
-        header: 'Action Taken On',
-        footer: 'Age',
-        accessorKey: 'age'
-      },
-      {
-        header: 'Action Taken By',
-        footer: 'Role',
-        accessorKey: 'role'
-      },
-      {
-        header: 'Actions',
-        accessorKey: 'actions',
-        cell: ({ row }) => (
-          <Button size="small" variant="outlined" onClick={() => handleEdit(row.original)}>
-            Edit
-          </Button>
-        )
-      }
-    ],
-    []
-  );
-
   return (
     <>
       <Grid container spacing={2}>
@@ -217,14 +149,10 @@ export default function TabAttendance() {
             <Calendar />
           </MainCard>
         </Grid>
-        <Grid item xs={12} md={12}>
+        {/* <Grid item xs={12} md={12}>
           <DenseTable />
-        </Grid>
+        </Grid> */}
       </Grid>
-      {/* Dialog for Create */}
-      {/* <LeaveRequest open={open} handleClose={handleCloseDialog} /> */}
-      {/* Dialog for Edit */}
-      {/* <LeaveRequest open={openEdit} handleClose={handleCloseEdit} initialData={editRowData} mode="edit" /> */}
     </>
   );
 }

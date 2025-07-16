@@ -28,6 +28,8 @@ import ScrollX from 'components/ScrollX';
 import MainCard from 'components/MainCard';
 import { LeaveRequest } from './leaveRequest';
 import { getLeaveHistory } from 'api/leave';
+import LogoImageLoader from 'components/PupilLoader';
+import { Box } from '@mui/system';
 
 // ==============================|| REACT TABLE COMPONENT ||============================== //
 
@@ -159,7 +161,7 @@ export default function DenseTable() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await getLeaveHistory(); // This should return the API JSON
+        const response = await getLeaveHistory(); 
         const rows =
           response?.data?.map((item) => ({
             id: item.id,
@@ -254,8 +256,22 @@ export default function DenseTable() {
     ],
     []
   );
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          height: '70vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <LogoImageLoader />
+      </Box>
+    );
+  }
 
-  if (loading) return <Typography variant="h6">Loading leave records...</Typography>;
 
   return (
     <>

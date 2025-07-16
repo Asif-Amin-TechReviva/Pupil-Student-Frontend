@@ -22,6 +22,7 @@ import QuichLinks from 'components/QuickLinks';
 import SwitchButton from 'components/SwitchButton';
 import TablePagination from 'components/third-party/react-table/TablePagination';
 import SearchIcon from '@mui/icons-material/Search';
+import LogoImageLoader from 'components/PupilLoader';
 const subjectColors = {
   Rhymes: '#FF9A5A',
   Science: '#4B8B68',
@@ -141,6 +142,21 @@ const Assignments = () => {
     setSearchText(value);
     setPersistedSearchText(value);
   };
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          height: '70vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <LogoImageLoader />
+      </Box>
+    );
+  }
   return (
     <div>
       <QuichLinks />
@@ -191,11 +207,7 @@ const Assignments = () => {
         />
       </Box>
 
-      {loading ? (
-        <Box textAlign="center" mt={3}>
-          <CircularProgress />
-        </Box>
-      ) : assignments.length > 0 ? (
+      {assignments.length > 0 ? (
         <>
           <Grid container spacing={3}>
             {assignments.map((assignment) => {
