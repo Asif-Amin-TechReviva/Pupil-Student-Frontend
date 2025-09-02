@@ -4,6 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { CSVExport, DebouncedInput, EmptyTable, TablePagination } from 'components/third-party/react-table';
 import { useReactTable, getCoreRowModel, getFilteredRowModel, flexRender } from '@tanstack/react-table';
 import { FetchPaymentDetails } from 'api/allPayments';
+import LogoImageLoader from 'components/PupilLoader';
 
 const PaymentTable = () => {
   const [paymentDetails, setPaymentDetails] = useState([]);
@@ -87,6 +88,21 @@ const PaymentTable = () => {
     label: col.header,
     key: col.accessorKey
   }));
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          height: '70vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <LogoImageLoader />
+      </Box>
+    );
+  }
 
   return (
     <Paper>
