@@ -5,13 +5,14 @@ import { LOGIN, LOGOUT } from 'contexts/auth-reducer/actions';
 import authReducer from 'contexts/auth-reducer/auth';
 import Loader from 'components/Loader';
 import axios from 'utils/axios';
+import { toast } from 'react-toastify';
 
 const chance = new Chance();
 
 const initialState = {
   isLoggedIn: false,
   isInitialized: false,
-  user:null
+  user: null
 };
 
 const verifyToken = (accessToken) => {
@@ -19,7 +20,7 @@ const verifyToken = (accessToken) => {
     return false;
   }
   const decoded = jwtDecode(accessToken);
-  return decoded
+  return decoded;
 };
 
 const setSession = (accessToken) => {
@@ -33,7 +34,6 @@ const setSession = (accessToken) => {
 };
 
 export const JWTContext = createContext(null);
-
 
 export const JWTProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
@@ -69,62 +69,36 @@ export const JWTProvider = ({ children }) => {
     init();
   }, []);
 
-
   const login = async (schoolId, password) => {
     try {
       const response = await axios.post('/student/login', {
         schoolId,
         password
       });
-  
+
       const accessToken = response.data.data.accessToken;
       const user = response.data.data.user;
       const id = response.data.data.user.id;
-  
-      console.log("getting student id after login", id);
-  
-      // Save data to sessionStorage
+
       sessionStorage.setItem('studentId', id);
       sessionStorage.setItem('user', JSON.stringify(user));
-  
+
       setSession(accessToken);
       dispatch({
         type: LOGIN,
         payload: {
           isLoggedIn: true,
-          user,
+          user
         }
       });
-  
+
       console.log(user);
-  
     } catch (err) {
       console.error('Login error:', err);
       throw err;
     }
   };
-  
-  const authenticate_me = async (userId, OTP) => {
-    // try {
-    //   const response = await axios.post('/auth/authenticate-admin', {
-    //     userId,
-    //     OTP
-    //   });
-    //   const { accessToken, user } = response.data.data.token;
-    //   setSession(accessToken);
-    //   dispatch({
-    //     type: LOGIN,
-    //     payload: {
-    //       isLoggedIn: true,
-    //       user
-    //     }
-    //   });
-    // } catch (err) {
-    //   console.error('Authentication error:', err);
-    //   throw err;
-    // }
-  };
-  
+
   const register = async (email, password, firstName, lastName) => {
     const id = chance.bb_pin();
     const response = await axios.post('/api/account/register', {
@@ -152,19 +126,36 @@ export const JWTProvider = ({ children }) => {
     window.localStorage.setItem('users', JSON.stringify(users));
   };
 
-  const logout = () => {
-    setSession(null);
-    dispatch({ type: LOGOUT });
+  const logout = async (user) => {
+    try {
+      const response = await axios.post('/user/logout', { user });
+      sessionStorage.removeItem('studentId');
+      sessionStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+
+      const accessToken = response.data.data.accessToken;
+      setSession(null);
+      dispatch({
+        type: LOGOUT,
+        payload: {
+          isLoggedIn: false,
+          user
+        }
+      });
+      toast.success('Logged out successfully!');
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error(err?.response?.data?.message || 'Logout failed. Please try again.');
+      throw err;
+    }
   };
 
   const sendOtp = async (email) => {
-    
     window.localStorage.setItem('ResendEmail', email);
 
     try {
       const response = await axios.post('/auth/forgot-password', { email });
-      return response.data; 
-      
+      return response.data;
     } catch (error) {
       throw new Error(error.response ? error.response.data.message : error.message);
     }
@@ -181,7 +172,7 @@ export const JWTProvider = ({ children }) => {
       throw error;
     }
   };
-  const resetPassword = async (newPassword,token) => {
+  const resetPassword = async (newPassword, token) => {
     try {
       const response = await axios.post('/auth/reset-password', {
         newPassword,
@@ -203,7 +194,7 @@ export const JWTProvider = ({ children }) => {
         currentPassword,
         newPassword
       });
-  
+
       // Check if the response indicates success
       if (response.data.success) {
         return { success: true, message: response.data.message }; // Password changed successfully
@@ -213,25 +204,25 @@ export const JWTProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error changing password:', error);
-      
+
       // Handle error cases (e.g., incorrect current password)
-      const errorMessage = 
-        error.response?.data?.message || error.message || 'Failed to change password';
-      
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to change password';
+
       return { success: false, message: errorMessage }; // Return failure with error message
     }
   };
-  
-  
-  
-  
+
   const updateProfile = () => {};
 
   if (state.isInitialized !== undefined && !state.isInitialized) {
     return <Loader />;
   }
 
-  return <JWTContext.Provider value={{ ...state, login, authenticate_me,verifyOtp,sendOtp,logout, register, resetPassword, updateProfile, changePassword}}>{children}</JWTContext.Provider>;
+  return (
+    <JWTContext.Provider value={{ ...state, login, verifyOtp, sendOtp, logout, register, resetPassword, updateProfile, changePassword }}>
+      {children}
+    </JWTContext.Provider>
+  );
 };
 
 export default JWTContext;

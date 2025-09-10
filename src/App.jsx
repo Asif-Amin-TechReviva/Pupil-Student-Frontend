@@ -13,6 +13,7 @@ import Notistack from 'components/third-party/Notistack';
 
 // auth-provider
 import { JWTProvider as AuthProvider } from 'contexts/JWTContext';
+import { Box } from '@mui/system';
 // import { FirebaseProvider as AuthProvider } from 'contexts/FirebaseContext';
 // import { AWSCognitoProvider as AuthProvider } from 'contexts/AWSCognitoContext';
 // import { Auth0Provider as AuthProvider } from 'contexts/Auth0Context';
@@ -21,6 +22,7 @@ import { JWTProvider as AuthProvider } from 'contexts/JWTContext';
 
 export default function App() {
   return (
+    <Box sx={{p:-10 ,m:0}} >
     <ThemeCustomization>
       <RTLLayout>
         <Locales>
@@ -38,5 +40,6 @@ export default function App() {
         </Locales>
       </RTLLayout>
     </ThemeCustomization>
+    </Box>
   );
 }

@@ -21,7 +21,7 @@ import dayjs from 'dayjs';
 import { getLeaveHistory, leaveRequest, UpdateLeaveRequest } from 'api/leave';
 import { enqueueSnackbar } from 'notistack';
 
-export const LeaveRequest = ({ open, handleClose, initialData = {}, mode = 'create' }) => {
+export const LeaveRequest = ({ open, handleClose, initialData = {}, mode = 'create',onSuccess }) => {
   const [leaveType, setLeaveType] = useState('');
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
@@ -81,6 +81,9 @@ export const LeaveRequest = ({ open, handleClose, initialData = {}, mode = 'crea
 
       enqueueSnackbar(mode === 'edit' ? 'Leave request updated!' : 'Leave request submitted!', { variant: 'success' });
       handleClose();
+      if (onSuccess) {
+        onSuccess();
+      }
       await getLeaveHistory(); // refresh
     } catch (error) {
       enqueueSnackbar(error.message || 'Failed to submit leave request', {

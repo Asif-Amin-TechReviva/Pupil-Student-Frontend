@@ -13,7 +13,8 @@ import { fetchMyAttendance } from 'api/myDetails';
 import LogoImageLoader from 'components/PupilLoader';
 import CircularLoader from 'components/CircularLoader';
 
-const AttendanceCalendar = () => {
+const Calendar = ({calendarFrom}) => {
+  console.log('loader from', calendarFrom)
   // Calendar state
   const matchDownSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const [calendarView, setCalendarView] = useState(matchDownSM ? 'listWeek' : 'dayGridMonth');
@@ -217,7 +218,7 @@ const AttendanceCalendar = () => {
 
   return (
     <>
-      {loading ? (
+      {loading && calendarFrom ==='profile' ? (
         <Box
           sx={{
             width: '100%',
@@ -227,10 +228,21 @@ const AttendanceCalendar = () => {
             alignItems: 'center'
           }}
         >
-          {/* <LogoImageLoader /> */}
-          <CircularLoader />
+          <LogoImageLoader />
         </Box>
-      ) : (
+      ) :loading && calendarFrom==='dashboard'? (
+        <Box
+        sx={{
+          width: '100%',
+          minHeight: '700px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <CircularLoader />
+      </Box>
+      ):(
         <Box
           sx={{
             position: 'relative',
@@ -337,4 +349,4 @@ const AttendanceCalendar = () => {
   );
 };
 
-export default AttendanceCalendar;
+export default Calendar;

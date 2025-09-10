@@ -2,14 +2,15 @@
 import { FormattedMessage } from 'react-intl';
 
 // assets
-import { I24Support, MessageProgramming } from 'iconsax-react';
+import { Calendar, I24Support, MessageProgramming } from 'iconsax-react';
 
 // type
 
 // icons
 // icons
 const icons = {
-  maintenance: MessageProgramming,
+  // maintenance: MessageProgramming,
+  attendance:Calendar,
   contactus: I24Support
 };
 
@@ -24,7 +25,7 @@ const AttendanceAndLeave = {
       id: 'Attendance & Leave',
       title: <FormattedMessage id="Attendance & Leave" />,
       type: 'collapse',
-      icon: icons.maintenance,
+      icon: icons.attendance,
       children: [
         {
           id: 'View Attendance',

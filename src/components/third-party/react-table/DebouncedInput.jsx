@@ -39,6 +39,7 @@ export default function DebouncedInput({
       {...props}
       value={value}
       onChange={handleInputChange}
+      autoFocus
       sx={{ minWidth: 100 }}
       {...(startAdornment && { startAdornment })}
       {...(size && { size })}

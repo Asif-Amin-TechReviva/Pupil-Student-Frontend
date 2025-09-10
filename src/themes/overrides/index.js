@@ -50,11 +50,14 @@ import ToggleButton from './ToggleButton';
 import Tooltip from './Tooltip';
 import TreeItem from './TreeItem';
 import Typography from './Typography';
+import Container from './Container';
+
 
 // ==============================|| OVERRIDES - MAIN ||============================== //
 
 export default function ComponentsOverrides(theme) {
   return merge(
+    Container(theme),
     Accordion(theme),
     AccordionDetails(theme),
     AccordionSummary(theme),

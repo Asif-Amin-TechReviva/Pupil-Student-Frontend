@@ -26,6 +26,10 @@ import Assignments from 'pages/Parent/assignments';
 import GradesIndex from 'pages/Parent/grades/GradesIndex';
 import TabAttendance from 'sections/apps/profiles/account/TabAttendance';
 import DenseTable from 'pages/Parent/Leave/leaveHistory';
+import ExamResultTable from 'pages/Parent/Results/ExamResultTable';
+import ExamsView from 'pages/Parent/grades/ExamsView';
+import GradesView from 'pages/Parent/grades/GradesView';
+import ComingSoon from 'pages/maintenance/coming-soon/comingSoon';
 const AppChat = Loadable(lazy(() => import('pages/apps/chat')));
 const AppCalendar = Loadable(lazy(() => import('pages/apps/calendar')));
 
@@ -168,6 +172,10 @@ const MainRoutes = {
             {
               path: 'all-payments',
               element: <PaymentTable />
+            },
+            {
+              path: 'online-payments',
+              element: <ComingSoon/>
             }
           ]
         },
@@ -183,8 +191,20 @@ const MainRoutes = {
               element: <GradesIndex />
             },
             {
+              path: 'exams',
+              element: <ExamsView />
+            },
+            {
+              path: 'grades',
+              element: <GradesView />
+            },
+            {
               path: 'leave',
               element: <Leave />
+            },
+            {
+              path: 'results',
+              element: <ExamResultTable />
             }
           ]
         },

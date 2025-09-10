@@ -25,6 +25,7 @@ import Calendar from 'pages/apps/calendar';
 
 export default function DashboardDefault() {
   const theme = useTheme();
+  const calendarFrom = 'dashboard'
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
@@ -38,7 +39,7 @@ export default function DashboardDefault() {
         <Grid container spacing={3}>
           <Grid item xs={12}>
             {/* <RepeatCustomerRate /> */}
-            <Calendar/>
+            <Calendar calendarFrom={calendarFrom}/>
           </Grid>
           <Grid item xs={12}>
             <ProjectOverview />

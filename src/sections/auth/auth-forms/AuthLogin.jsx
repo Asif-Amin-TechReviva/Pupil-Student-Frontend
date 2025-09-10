@@ -40,21 +40,21 @@ export default function AuthLogin({ forgot }) {
     <>
       <Formik
         initialValues={{
-          schoolId: '',
+          StudentId: '',
           password: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          schoolId: Yup.string()
-            .max(30, 'School ID must not exceed 30 characters')
-            .required('School ID is required'),
+          StudentId: Yup.string()
+            .max(30, 'Student ID must not exceed 30 characters')
+            .required('Student ID is required'),
           password: Yup.string()
             .max(30, 'Password must not exceed 30 characters')
             .required('Password is required')
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
-            await login(values.schoolId, values.password);
+            await login(values.StudentId, values.password);
             if (scriptedRef.current) {
               setStatus({ success: true });
               setSubmitting(false);
@@ -75,22 +75,22 @@ export default function AuthLogin({ forgot }) {
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="schoolId-login">School ID</InputLabel>
+                  <InputLabel htmlFor="StudentId-login">Student ID</InputLabel>
                   <OutlinedInput
-                    id="schoolId-login"
-                    type="schoolId"
-                    value={values.schoolId}
-                    name="schoolId"
+                    id="StudentId-login"
+                    type="StudentId"
+                    value={values.StudentId}
+                    name="StudentId"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter school ID "
+                    placeholder="Enter Student ID "
                     fullWidth
-                    error={Boolean(touched.schoolId && errors.schoolId)}
+                    error={Boolean(touched.StudentId && errors.StudentId)}
                   />
                 </Stack>
-                {touched.schoolId && errors.schoolId && (
-                  <FormHelperText error id="standard-weight-helper-text-schoolId-login">
-                    {errors.schoolId}
+                {touched.StudentId && errors.StudentId && (
+                  <FormHelperText error id="standard-weight-helper-text-StudentId-login">
+                    {errors.StudentId}
                   </FormHelperText>
                 )}
               </Grid>
@@ -145,7 +145,7 @@ export default function AuthLogin({ forgot }) {
                   />
 
                   <Link variant="h6" component={RouterLink} to={isLoggedIn && forgot ? forgot : '/forgot-password'} color="text.primary">
-                    Forgot or Set Password?
+                    Forgot Password?
                   </Link>
                 </Stack>
               </Grid>

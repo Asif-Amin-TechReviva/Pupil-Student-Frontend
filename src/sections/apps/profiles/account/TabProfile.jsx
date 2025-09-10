@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -122,6 +122,13 @@ export default function TabProfile() {
     LINKEDIN: <LinkedIn variant="Bold" style={{ color: socialMediaColors.LINKEDIN }} />,
     FACEBOOK: <Facebook variant="Bold" style={{ color: socialMediaColors.FACEBOOK }} />
   };
+  const syllabusData = [
+    { time: '9:00 AM', subject: 'English', },
+    { time: '10:00 AM', subject: 'Urdu',  },
+    { time: '11:00 AM', subject: 'Mathematics'  },
+    { time: '12:00 PM', subject: 'Science'  },
+    { time: '1:00 PM', subject: 'Social Science'  },
+  ];
 
   const [socialAccounts, setSocialAccounts] = useState([
     ...socialMedia.map((account) => ({
@@ -311,7 +318,6 @@ export default function TabProfile() {
       </Box>
     );
   }
-  console.log(profileImage, 'url for image');
   return (
     <Grid container spacing={3}>
       <ToastContainer position="top-right" autoClose={3000} />
@@ -397,7 +403,7 @@ export default function TabProfile() {
                 <Grid item xs={12}>
                   <Divider />
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                   <List component="nav" aria-label="main mailbox folders" sx={{ py: 0, '& .MuiListItem-root': { p: 0, py: 1 } }}>
                     <ListItem>
                       <ListItemIcon>
@@ -424,25 +430,81 @@ export default function TabProfile() {
                       </ListItemSecondaryAction>
                     </ListItem>
                   </List>
+                </Grid> */}
+
+<Grid item xs={12}>
+                  <Typography sx={{ textAlign: 'center', fontWeight: 600, mb: 2 }}>Contact Information</Typography>
+                  <List
+                    component="nav"
+                    aria-label="main mailbox folders"
+                    sx={{ py: 0, textAlign: 'center', '& .MuiListItem-root': { p: 0, py: 1 } }}
+                  >
+                    <ListItem>
+                      <ListItemIcon>
+                        <Sms size={18} />
+                      </ListItemIcon>
+                      {/* <ListItemSecondaryAction> */}
+                      <Typography >{studentData?.email}</Typography>
+                      {/* </ListItemSecondaryAction> */}
+                    </ListItem>
+                    <ListItem>
+                      <ListItemIcon>
+                        <CallCalling size={18} />
+                      </ListItemIcon>
+                      {/* <ListItemSecondaryAction> */}
+                      <Typography >(+91) {studentData?.phone}</Typography>
+                      {/* </ListItemSecondaryAction> */}
+                    </ListItem>
+                    <ListItem>
+                      <ListItemIcon>
+                        <Gps size={18} />
+                      </ListItemIcon>
+                      {/* <ListItemSecondaryAction> */}
+                      <Typography >{studentData?.presentAddress || 'Not added yet'} </Typography>
+                      {/* </ListItemSecondaryAction> */}
+                    </ListItem>
+                  </List>
                 </Grid>
               </Grid>
             </MainCard>
           </Grid>
           <Grid item xs={12}>
-            <MainCard title="Syllabus">
-              <Grid container spacing={1.25}>
-                {Class?.subjects?.map((subject) => (
-                  <>
-                    <Grid item xs={6} key={`${subject.id}-name`}>
-                      <Typography color="secondary">{subject.name}</Typography>
-                    </Grid>
-                    <Grid item xs={6} key={`${subject.id}-progress`}>
-                      <LinearWithLabel value={Math.floor(Math.random() * 100)} />
-                    </Grid>
-                  </>
-                ))}
-              </Grid>
-            </MainCard>
+          <MainCard
+  title={<Typography sx={{ textAlign: 'center', fontWeight: 600 }}>Upcoming Classes</Typography>}
+  divider={false}
+>
+  <Grid container spacing={2}>
+    {/* Header row */}
+    <Grid item xs={6}>
+      <Typography  sx={{ fontWeight: 600,}}>
+        Time
+      </Typography>
+    </Grid>
+    <Grid item xs={6}>
+      <Typography  sx={{ fontWeight: 600, }}>
+        Subject
+      </Typography>
+    </Grid>
+
+    {/* Data rows */}
+    {syllabusData.map((item, index) => (
+      <React.Fragment key={index}>
+        <Grid item xs={6} display="flex" gap={0.5}>
+          <Typography color="text.primary">{item.time}</Typography>
+        </Grid>
+        <Grid item xs={6} display="flex" gap={0.5}>
+          <Typography color="text.primary">{item.subject}</Typography>
+        </Grid>
+        {index < syllabusData.length - 1 && (
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+        )}
+      </React.Fragment>
+    ))}
+  </Grid>
+</MainCard>
+
           </Grid>
         </Grid>
       </Grid>
@@ -452,22 +514,22 @@ export default function TabProfile() {
           <Grid item xs={12}>
             <MainCard
               title="Personal Details"
-              secondary={
-                !isEditing ? (
-                  <IconButton onClick={handleEdit}>
-                    <Edit />
-                  </IconButton>
-                ) : (
-                  <Stack direction="row" spacing={1}>
-                    <IconButton onClick={handleCancel} color="error">
-                      <Cancel />
-                    </IconButton>
-                    <IconButton onClick={handleSave} color="primary">
-                      <Save />
-                    </IconButton>
-                  </Stack>
-                )
-              }
+              // secondary={
+              //   !isEditing ? (
+              //     <IconButton onClick={handleEdit}>
+              //       <Edit />
+              //     </IconButton>
+              //   ) : (
+              //     <Stack direction="row" spacing={1}>
+              //       <IconButton onClick={handleCancel} color="error">
+              //         <Cancel />
+              //       </IconButton>
+              //       <IconButton onClick={handleSave} color="primary">
+              //         <Save />
+              //       </IconButton>
+              //     </Stack>
+              //   )
+              // }
             >
               <List sx={{ py: 0 }}>
                 <ListItem divider={!matchDownMD}>
@@ -475,7 +537,8 @@ export default function TabProfile() {
                     <Grid item xs={12} md={6}>
                       <Stack spacing={0.5}>
                         <Typography color="secondary">Full Name</Typography>
-                        {renderEditableField('fullName', fullName, 'Full Name')}
+                        {/* {renderEditableField('fullName', fullName, 'Full Name')} */}
+                        <Typography >{fullName}</Typography>
                       </Stack>
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -510,7 +573,8 @@ export default function TabProfile() {
                     <Grid item xs={12} md={6}>
                       <Stack spacing={0.5}>
                         <Typography color="secondary">Email</Typography>
-                        {renderEditableField('email', email, 'Email')}
+                        {/* {renderEditableField('email', email, 'Email')} */}
+                        <Typography>{email}</Typography>
                       </Stack>
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -526,13 +590,15 @@ export default function TabProfile() {
                     <Grid item xs={12} md={6}>
                       <Stack spacing={0.5}>
                         <Typography color="secondary">Address</Typography>
-                        {renderEditableField('presentAddress', presentAddress, 'Address')}
+                        {/* {renderEditableField('presentAddress', presentAddress, 'Address')} */}
+                        <Typography>{presentAddress}</Typography>
                       </Stack>
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <Stack spacing={0.5}>
                         <Typography color="secondary">DOB</Typography>
-                        {renderEditableField('DOB', formatDate(DOB), 'Date of Birth', 'date')}
+                        {/* {renderEditableField('DOB', formatDate(DOB), 'Date of Birth', 'date')} */}
+                        <Typography>{formatDate(DOB)}</Typography>
                       </Stack>
                     </Grid>
                   </Grid>
@@ -542,19 +608,22 @@ export default function TabProfile() {
                     <Grid item xs={12} md={6}>
                       <Stack spacing={0.5}>
                         <Typography color="secondary">Father Name</Typography>
-                        {renderEditableField('father', father, 'Father Name')}
+                        {/* {renderEditableField('father', father, 'Father Name')} */}
+                        <Typography>{father}</Typography>
                       </Stack>
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <Stack spacing={0.5}>
                         <Typography color="secondary">Mother Name</Typography>
-                        {renderEditableField('mother', mother, 'Mother Name')}
+                        {/* {renderEditableField('mother', mother, 'Mother Name')} */}
+                        <Typography>{mother}</Typography>
+
                       </Stack>
                     </Grid>
                   </Grid>
                 </ListItem>
               </List>
-              {isEditing && (
+              {/* {isEditing && (
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                   <Button variant="outlined" color="error" startIcon={<Cancel />} onClick={handleCancel}>
                     Cancel
@@ -563,7 +632,7 @@ export default function TabProfile() {
                     {saveLoading ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </Box>
-              )}
+              )} */}
             </MainCard>
           </Grid>
           <Grid item xs={12}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Chip, IconButton, InputAdornment, Paper, ToggleButton, ToggleButtonGroup, Tooltip, useMediaQuery } from '@mui/material';
 import { FetchAllAssignments, FetchAssignmentDetails } from 'api/assignments';
 import { toast } from 'react-toastify';
 import {
@@ -23,6 +24,12 @@ import SwitchButton from 'components/SwitchButton';
 import TablePagination from 'components/third-party/react-table/TablePagination';
 import SearchIcon from '@mui/icons-material/Search';
 import LogoImageLoader from 'components/PupilLoader';
+import { Stack } from '@mui/system';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import { Close } from '@mui/icons-material';
+import AssignmentDialog from './assignmentDialog';
+
 const subjectColors = {
   Rhymes: '#FF9A5A',
   Science: '#4B8B68',
@@ -32,11 +39,12 @@ const subjectColors = {
   English: '#3E63AF',
   Mathematics: '#714AC6',
   Urdu: '#337367',
-  SocialScience: '#E18E1E'
+  SocialScience: '#E18E1E',
+  Arabic: '#E18E1F'
 };
 const Assignments = () => {
   const theme = useTheme();
-
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   // State
   const [loading, setLoading] = useState(true);
   const [modalLoading, setModalLoading] = useState(false);
@@ -46,31 +54,34 @@ const Assignments = () => {
   const [activeTab, setActiveTab] = useState('ongoing');
   const [searchText, setSearchText] = useState('');
   const [persistedSearchText, setPersistedSearchText] = useState('');
+  const [debouncedSearchText, setDebouncedSearchText] = useState(searchText);
 
   // Pagination state
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [totalPageCount, setTotalPageCount] = useState(0);
   const switchNames = 'fromAssignments';
+
   // Fetch assignments
   const fetchAssignments = async () => {
     setLoading(true);
     try {
       const status = activeTab === 'ongoing' ? 'ongoing' : 'completed';
-      const response = await FetchAllAssignments(
-        pageIndex + 1,
-        pageSize,
-        searchText.trim(), // Pass search text (trimmed for clean input)
-        'asc',
-        status
-      );
+      const response = await FetchAllAssignments(pageIndex + 1, pageSize, debouncedSearchText.trim(), 'asc', status);
       let fetchedAssignments = response?.data?.data || [];
-      if (searchText.trim()) {
+      // if (searchText.trim()) {
+      //   fetchedAssignments = fetchedAssignments.filter((assignment) => {
+      //     const lowerSearch = searchText.toLowerCase();
+      //     return assignment.title.toLowerCase().includes(lowerSearch) || assignment.subject.name.toLowerCase().includes(lowerSearch);
+      //   });
+      // }
+      if (debouncedSearchText.trim()) {
         fetchedAssignments = fetchedAssignments.filter((assignment) => {
-          const lowerSearch = searchText.toLowerCase();
+          const lowerSearch = debouncedSearchText.toLowerCase();
           return assignment.title.toLowerCase().includes(lowerSearch) || assignment.subject.name.toLowerCase().includes(lowerSearch);
         });
       }
+
       setAssignments(fetchedAssignments);
       setTotalPageCount(response?.data?.meta?.pageCount || 0);
     } catch (error) {
@@ -105,35 +116,123 @@ const Assignments = () => {
   };
 
   useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 400); // debounce delay in ms
+
+    return () => clearTimeout(handler);
+  }, [searchText]);
+
+  useEffect(() => {
     fetchAssignments();
-  }, [activeTab, pageIndex, pageSize, searchText]);
+  }, [activeTab, pageIndex, pageSize, debouncedSearchText]);
 
   // Download attachment
-  const handleDownload = (url, title) => {
-    if (url) {
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Failed to fetch the attachment');
-          }
-          return response.blob();
-        })
-        .then((blob) => {
-          const downloadUrl = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = downloadUrl;
-          link.download = title || 'attachment';
-          link.click();
-          window.URL.revokeObjectURL(downloadUrl);
-        })
-        .catch((error) => {
-          console.error('Download failed:', error);
-          toast.error('Failed to download attachment.');
-        });
-    } else {
+  // const handleDownload = (url, title) => {
+  //   if (url) {
+  //     fetch(url)
+  //       .then((response) => {
+  //         if (!response.ok) {
+  //           throw new Error('Failed to fetch the attachment');
+  //         }
+  //         return response.blob();
+  //       })
+  //       .then((blob) => {
+  //         const downloadUrl = window.URL.createObjectURL(blob);
+  //         const link = document.createElement('a');
+  //         link.href = downloadUrl;
+  //         link.download = title || 'attachment';
+  //         link.click();
+  //         window.URL.revokeObjectURL(downloadUrl);
+  //       })
+  //       .catch((error) => {
+  //         console.error('Download failed:', error);
+  //         toast.error('Failed to download attachment.');
+  //       });
+  //   } else {
+  //     toast.error('No attachment available.');
+  //   }
+  // };
+  // Single file download
+
+  const handleDownload = async (url, title) => {
+    if (!url) {
       toast.error('No attachment available.');
+      return;
+    }
+
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      if (!response.ok) throw new Error('Failed to fetch file');
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = title || url.split('/').pop(); // 👈 forces "Save as..."
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast.error('Failed to download attachment.');
     }
   };
+
+  // const handleBulkDownload = (urls, titlePrefix) => {
+  //   if (!urls) {
+  //     toast.error('No attachments available.');
+  //     return;
+  //   }
+
+  //   urls.split(',').forEach((url, i) => {
+  //     const fileName = url.split('/').pop();
+  //     const link = document.createElement('a');
+  //     link.href = url;
+  //     link.download = `${titlePrefix || 'Attachment'}-${i + 1}-${fileName}`;
+  //     link.target = '_blank';
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   });
+  // };
+
+  // Multiple files download
+
+  const handleBulkDownload = async (urls, titlePrefix) => {
+    if (!urls) {
+      toast.error('No attachments available.');
+      return;
+    }
+
+    const urlList = urls.split(',');
+    for (let i = 0; i < urlList.length; i++) {
+      try {
+        const url = urlList[i].trim();
+        const response = await fetch(url, { mode: 'cors' });
+        if (!response.ok) throw new Error('Failed to fetch file');
+
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `${titlePrefix || 'Attachment'}-${i + 1}-${url.split('/').pop()}`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error(`Download ${i + 1} failed:`, error);
+        toast.error(`Failed to download file ${i + 1}`);
+      }
+    }
+  };
+
   const truncateText = (text, maxLength) => {
     return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
   };
@@ -159,53 +258,97 @@ const Assignments = () => {
   }
   return (
     <div>
-      <QuichLinks />
-      <SwitchButton activeTab={activeTab} setActiveTab={(tab) => setActiveTab(tab)} switchNames={switchNames} />
-      <Box mt={1} mb={2} display="flex" justifyContent="right" alignItems="center">
-        <TextField
-          variant="outlined"
-          value={persistedSearchText}
-          onChange={handleSearchChange}
-          placeholder="Search By Title or Subject"
-          sx={{
-            width: { xs: '100%', sm: '20%' },
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#fff',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-              borderRadius: { xs: '10px', sm: '25px' },
-              '&:hover': {
-                backgroundColor: '#ffffff',
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' // More pronounced shadow on hover
-              },
-              '&.Mui-focused': {
-                backgroundColor: '#ffffff', // Highlight on focus
-                boxShadow: '0 0 0 2px #1976D2' // Blue outline when focused
-              }
-            },
-            '& .MuiInputLabel-root': {
-              color: '#1976D2', // Blue label color
-              fontWeight: 'bold' // Bold label for emphasis
-            },
-            '& .MuiInputLabel-root.Mui-focused': {
-              color: '#1565C0' // Darker blue for focused label
-            }
-          }}
-          InputProps={{
-            endAdornment: (
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: '#1976D2',
-                  marginLeft: 1
-                }}
-              >
-                <SearchIcon />
-              </Box>
-            )
-          }}
-        />
-      </Box>
+      <Paper
+        sx={{
+          p: { xs: 2, sm: 3 },
+          mb: 3,
+          borderRadius: 2,
+          boxShadow: 2,
+          backgroundColor: 'background.paper'
+        }}
+      >
+        <Grid container spacing={2} alignItems="center">
+          {/* Toggle Buttons */}
+          <Grid item xs={12} md={6}>
+            <ToggleButtonGroup
+              value={activeTab}
+              exclusive
+              onChange={(e, newValue) => {
+                if (newValue !== null) {
+                  setActiveTab(newValue);
+                  setPageIndex(0);
+                }
+              }}
+              size="small"
+              sx={{
+                backgroundColor: 'background.default',
+                borderRadius: 2,
+                width: isMobile ? '100%' : 'auto',
+                boxShadow: 1,
+                '& .MuiToggleButton-root': {
+                  px: 2,
+                  py: 1,
+                  textTransform: 'none',
+                  border: 'none',
+                  '&.Mui-selected': {
+                    backgroundColor: 'primary.main',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'primary.dark'
+                    }
+                  }
+                }
+              }}
+            >
+              <ToggleButton value="ongoing" sx={{ width: isMobile ? '50%' : 'auto' }}>
+                <PendingActionsIcon fontSize="small" sx={{ mr: 1 }} />
+                Ongoing
+              </ToggleButton>
+              <ToggleButton value="completed" sx={{ width: isMobile ? '50%' : 'auto' }}>
+                <CheckCircleIcon fontSize="small" sx={{ mr: 1 }} />
+                Completed
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Grid>
+
+          {/* Search and Create Button */}
+          <Grid item xs={12} md={6}>
+            <Grid container spacing={2} alignItems="center" justifyContent="flex-end">
+              <Grid item xs={12} sm="auto">
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  autoFocus
+                  value={persistedSearchText}
+                  onChange={handleSearchChange}
+                  placeholder="Search assignments..."
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon color="action" />
+                      </InputAdornment>
+                    ),
+                    sx: {
+                      borderRadius: 2,
+                      backgroundColor: 'background.default',
+                      '&:hover': { backgroundColor: 'action.hover' }
+                    }
+                  }}
+                  sx={{
+                    minWidth: { xs: '100%', sm: 250 },
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main'
+                      }
+                    }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm="auto"></Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Paper>
 
       {assignments.length > 0 ? (
         <>
@@ -214,309 +357,157 @@ const Assignments = () => {
               const subjectColor = subjectColors[assignment.subject.name];
 
               return (
-                <Grid item xs={12} sm={6} md={6} key={assignment.id}>
+                <Grid item xs={12} sm={6} md={4} key={assignment.id}>
                   <Card
                     variant="outlined"
                     sx={{
                       borderRadius: 2,
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                      position: 'relative',
                       height: '100%',
                       display: 'flex',
-                      flexDirection: 'column'
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      p: 3,
+                      position: 'relative'
                     }}
                   >
+                    {/* Subject Badge */}
                     <Box
                       sx={{
                         position: 'absolute',
                         top: 16,
                         right: 16,
+                        px: 2,
+                        py: 0.5,
                         backgroundColor: subjectColor,
-                        color: '#fff',
-                        padding: '4px 12px',
-                        borderRadius: '12px',
+                        borderRadius: '20px',
                         fontWeight: 'bold',
-                        fontSize: { xs: '0.8rem', sm: '1rem' }, // Adjust font size for smaller screens
-                        maxWidth: '100%' // Prevents overflow
+                        fontSize: '0.85rem',
+                        color: '#fff'
                       }}
                     >
                       {assignment.subject.name}
                     </Box>
 
-                    <CardContent
-                      sx={{
-                        flex: '1 1 auto',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between'
-                      }}
-                    >
+                    <CardContent sx={{ p: 0, flexGrow: 1 }}>
+                      {/* Title */}
                       <Typography
-                        variant="h4"
+                        variant="h5"
                         fontWeight="bold"
                         gutterBottom
-                        sx={{
-                          fontSize: { xs: '1.25rem', sm: '1.5rem' }, // Adjust font size for smaller screens
-                          overflowWrap: 'break-word', // Prevents overflow of title on smaller screens
-                          wordBreak: 'break-word', // Ensures the title breaks on long words
-                          marginTop: { xs: '2rem', sm: '2rem', md: '0' }
-                        }}
+                        sx={{ mb: 1, overflowWrap: 'break-word', wordBreak: 'break-word' }}
                       >
-                        {truncateText(assignment.title, 20)}
-                        {/* {truncateText(assignment.description, 500)} */}
+                        {truncateText(assignment.title, 40)}
                       </Typography>
-                      <Typography
-                        variant="body1"
-                        fontWeight="bold"
-                        gutterBottom
-                        sx={{
-                          fontSize: { xs: '0.875rem', sm: '1rem' } // Adjust font size for smaller screens
-                        }}
-                      >
+
+                      {/* Assigned by */}
+                      <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
                         Assigned by: {`${assignment.addedBy.user.firstName} ${assignment.addedBy.user.lastName}`}
                       </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        gutterBottom
-                        sx={{
-                          fontSize: { xs: '0.75rem', sm: '0.875rem' } // Adjust font size for smaller screens
-                        }}
-                      >
+
+                      {/* Assigned On */}
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                         Assigned On: {new Date(assignment.addedBy.createdAt).toLocaleDateString()}
                       </Typography>
+
+                      {/* Description */}
                       <Typography
                         variant="body1"
                         sx={{
-                          marginTop: 2,
-                          marginBottom: 2,
-                          fontSize: '0,8rem',
-                          textAlign: 'justify'
+                          fontSize: '0.95rem',
+                          textAlign: 'justify',
+                          mb: 2,
+                          minHeight: '50px'
                         }}
                       >
-                        {truncateText(assignment.description, 500)}
+                        {truncateText(assignment.description, 95)}
                       </Typography>
 
-                      <Box
-                        sx={{
-                          marginTop: 'auto',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'baseline',
-                          flexDirection: { xs: 'column', sm: 'row' }, // Stack buttons on smaller screens
-                          gap: { xs: '1rem', sm: '0' } // Space between buttons on small screens
-                        }}
+                      {/* Due Date */}
+                      <Typography
+                        variant="body2"
+                        color={new Date(assignment.dueDate) < new Date() ? 'error.main' : 'text.secondary'}
+                        sx={{ fontWeight: 500 }}
                       >
-                        <Typography
-                          variant="body2"
-                          color="textSecondary"
-                          gutterBottom
-                          sx={{
-                            fontSize: { xs: '0.75rem', sm: '0.875rem' } // Adjust font size for smaller screens
-                          }}
-                        >
-                          Due Date: {new Date(assignment.dueDate).toLocaleDateString()}
-                        </Typography>
-
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            gap: { xs: '5rem', sm: '1rem', md: '2rem' }
-                          }}
-                        >
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<CloudDownloadIcon />}
-                            onClick={() => handleDownload(assignment.attachmentUrl, assignment.title)}
-                            sx={{
-                              padding: { xs: '.4rem .8rem', sm: '.5rem 1rem', md: '1rem 1.5rem' },
-                              fontSize: { xs: '1rem', sm: '0.75rem', md: '0.85rem' },
-                              fontWeight: 'bold',
-                              backgroundColor: '#1976D2',
-                              '&:hover': {
-                                backgroundColor: '#1565C0'
-                              },
-                              minWidth: 'auto' // Prevents a large default width
-                            }}
-                          >
-                            Download
-                          </Button>
-
-                          <Button
-                            variant="outlined"
-                            color="success"
-                            sx={{
-                              padding: { xs: '.4rem .8rem', sm: '.5rem 1rem', md: '.5rem 1rem' },
-                              fontSize: { xs: '1rem', sm: '0.75rem', md: '0.85rem' },
-                              borderRadius: 1,
-                              textTransform: 'none',
-                              minWidth: 'auto' // Prevents a large default width
-                            }}
-                            onClick={() =>
-                              handleOpenModal(assignment.id, {
-                                addedBy: `${assignment.addedBy.user.firstName} ${assignment.addedBy.user.lastName}`
-                              })
-                            }
-                          >
-                            View More
-                          </Button>
-                        </Box>
-                      </Box>
+                        Due Date: {new Date(assignment.dueDate).toLocaleDateString()}
+                      </Typography>
                     </CardContent>
+
+                    {/* Buttons */}
+                    <Stack direction="row" spacing={2} mt={3} justifyContent="flex-end" flexWrap="wrap">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<CloudDownloadIcon />}
+                        onClick={() => handleDownload(assignment.attachmentUrl, assignment.title)}
+                        sx={{ fontWeight: 'bold', textTransform: 'none' }}
+                      >
+                        Download
+                      </Button>
+
+                      <Button
+                        variant="outlined"
+                        color="success"
+                        onClick={() =>
+                          handleOpenModal(assignment.id, {
+                            addedBy: `${assignment.addedBy.user.firstName} ${assignment.addedBy.user.lastName}`
+                          })
+                        }
+                        sx={{ textTransform: 'none' }}
+                      >
+                        View More
+                      </Button>
+                    </Stack>
                   </Card>
                 </Grid>
               );
             })}
           </Grid>
-          <Box mt={3}>
-            <TablePagination
-              getPageCount={() => Math.ceil(totalPageCount)}
-              setPageIndex={setPageIndex}
-              setPageSize={(newSize) => {
-                setPageSize(newSize);
-              }}
-              getState={() => ({ pagination: { pageIndex, pageSize } })}
-              initialPageSize={pageSize}
-              labelRowsPerPage="Assignments Per Page"
-            />
-          </Box>
+          {assignments.length > 10 && (
+            <Box mt={3}>
+              <TablePagination
+                getPageCount={() => Math.ceil(totalPageCount)}
+                setPageIndex={setPageIndex}
+                setPageSize={(newSize) => {
+                  setPageSize(newSize);
+                }}
+                getState={() => ({ pagination: { pageIndex, pageSize } })}
+                initialPageSize={pageSize}
+                labelRowsPerPage="Assignments Per Page"
+              />
+            </Box>
+          )}
         </>
       ) : (
         <Box>
           <Typography textAlign="center" mt={3}>
             No assignments found.
           </Typography>
-          <Box mt={3}>
-            <TablePagination
-              getPageCount={() => Math.ceil(totalPageCount)}
-              setPageIndex={setPageIndex}
-              setPageSize={(newSize) => {
-                setPageSize(newSize);
-              }}
-              getState={() => ({ pagination: { pageIndex, pageSize } })}
-              initialPageSize={pageSize}
-              labelRowsPerPage="Assignments Per Page"
-            />
-          </Box>
+          {assignments.length > 10 && (
+            <Box mt={3}>
+              <TablePagination
+                getPageCount={() => Math.ceil(totalPageCount)}
+                setPageIndex={setPageIndex}
+                setPageSize={(newSize) => {
+                  setPageSize(newSize);
+                }}
+                getState={() => ({ pagination: { pageIndex, pageSize } })}
+                initialPageSize={pageSize}
+                labelRowsPerPage="Assignments Per Page"
+              />
+            </Box>
+          )}
         </Box>
       )}
 
-      <Dialog open={openModal} onClose={handleCloseModal} maxWidth="md" fullWidth>
-        <Box
-          display="flex"
-          justifyContent={{ xs: 'center', sm: 'space-between' }}
-          alignItems="center"
-          sx={{ padding: { xs: '0.5rem 1rem', sm: '1rem' } }}
-        >
-          <DialogTitle
-            sx={{
-              fontWeight: 'bold',
-              fontSize: { xs: '1rem', sm: '1.5rem' },
-              color: '#1976D2',
-              textAlign: { xs: 'left', sm: 'left' },
-              flexGrow: 1
-            }}
-          >
-            Assignment Details
-          </DialogTitle>
-          <Button
-            onClick={handleCloseModal}
-            color="error"
-            variant="outlined"
-            sx={{
-              marginTop: { xs: '1rem', sm: 0 }, // Add margin on small screens to separate it from the title
-              padding: { xs: '0.5rem 1rem', sm: '0.75rem 1.5rem' },
-              fontSize: { xs: '0.875rem', sm: '1rem' },
-              alignSelf: { xs: 'center', sm: 'flex-end' } // Center button on small screens
-            }}
-          >
-            Close
-          </Button>
-        </Box>
-
-        <DialogContent
-          sx={{
-            padding: '2rem',
-            backgroundColor: '#f9f9f9',
-            overflowY: 'auto', // Allows scrolling when content overflows
-            maxHeight: '70vh',
-            scrollbarWidth: '4px',
-            msOverflowStyle: 'none', // Hide scrollbar in Internet Explorer
-            '&::-webkit-scrollbar': { display: 'none' } // Hide scrollbar in Webkit-based browsers
-          }}
-        >
-          {modalLoading ? (
-            <Box display="flex" justifyContent="center" alignItems="center" height={200}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            selectedAssignment && (
-              <Box>
-                <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ textAlign: 'center', color: '#333', paddingTop: '15px' }}>
-                  {selectedAssignment.title}
-                </Typography>
-                <Typography variant="body2" paragraph sx={{ lineHeight: 1.6, color: '#222', textAlign: 'justify', fontWeight: 'bold' }}>
-                  Assigned by: {selectedAssignment?.addedBy || 'No data available'}
-                </Typography>
-
-                <Typography variant="body6" paragraph sx={{ lineHeight: 1.6, color: '#555', textAlign: 'justify' }}>
-                  {selectedAssignment.description}
-                </Typography>
-
-                <Divider sx={{ my: 3, borderColor: '#1976D2' }} />
-
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <Typography variant="body3" color="text.primary">
-                    Created On: {new Date(selectedAssignment.createdAt).toLocaleDateString()}
-                  </Typography>
-                  <Typography variant="body3" color="error">
-                    Due Date: {new Date(selectedAssignment.dueDate).toLocaleDateString()}
-                  </Typography>
-                </Box>
-
-                {selectedAssignment.attachmentUrl && (
-                  <Box mt={3} textAlign="center" mb={3}>
-                    <img
-                      src={selectedAssignment.attachmentUrl}
-                      alt="Attachment"
-                      style={{
-                        maxWidth: '100%',
-                        maxHeight: '400px',
-                        borderRadius: 8,
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                        objectFit: 'contain'
-                      }}
-                    />
-                  </Box>
-                )}
-              </Box>
-            )
-          )}
-        </DialogContent>
-
-        <DialogActions sx={{ padding: '1rem 2rem' }}>
-          {selectedAssignment?.attachmentUrl && (
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<CloudDownloadIcon />}
-              onClick={() => handleDownload(selectedAssignment.attachmentUrl, selectedAssignment.title)}
-              sx={{
-                padding: '0.75rem 1.5rem',
-                fontWeight: 'bold',
-                backgroundColor: '#1976D2',
-                '&:hover': {
-                  backgroundColor: '#1565C0'
-                }
-              }}
-            >
-              Download
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
+      <AssignmentDialog
+        openModal={openModal}
+        handleCloseModal={handleCloseModal}
+        modalLoading={modalLoading}
+        selectedAssignment={selectedAssignment}
+        handleDownload={handleDownload}
+        handleBulkDownload={handleBulkDownload}
+      />
     </div>
   );
 };
