@@ -18,7 +18,8 @@ export const endpoints = {
 };
 
 export function useGetCustomer() {
-  const { data, isLoading, error, isValidating } = useSWR(endpoints.key + endpoints.list, fetcher, {
+  // const { data, isLoading, error, isValidating } = useSWR(endpoints.key + endpoints.list, fetcher, {
+  const { data, isLoading, error, isValidating } = useSWR(endpoints.key + endpoints.list, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false

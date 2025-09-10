@@ -23,6 +23,10 @@ const LoginRoutes = {
       element: <AuthLayout />,
       children: [
         {
+          path: 'verify-OTP',
+          element: <AuthCodeVerification />
+        },
+        {
           path: 'login',
           element: <AuthLogin />
         },

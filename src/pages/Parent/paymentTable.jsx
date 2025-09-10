@@ -10,7 +10,7 @@ const PaymentTable = () => {
   const [paymentDetails, setPaymentDetails] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [loading, setLoading] = useState(true);
-  const [totalRows, setTotalRows] = useState(0); 
+  const [totalRows, setTotalRows] = useState(0);
 
   // Pagination state
   const [pageIndex, setPageIndex] = useState(0);
@@ -26,7 +26,7 @@ const PaymentTable = () => {
 
       const data = await FetchPaymentDetails(id, pageIndex + 1, pageSize, globalFilter);
       setPaymentDetails(data.data || []);
-      setTotalRows(data?.meta?.pageCount); 
+      setTotalRows(data?.meta?.pageCount);
     } catch (error) {
       console.error('Error fetching payment details:', error);
     } finally {
@@ -107,11 +107,15 @@ const PaymentTable = () => {
   return (
     <Paper>
       <Stack mt={3} direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 2 }}>
-        <DebouncedInput
-          value={globalFilter ?? ''}
-          onFilterChange={(value) => setGlobalFilter(String(value))}
-          placeholder={`Search ${totalRows} records...`}
-        />
+        <Box sx={{ width: { xs: '100%', sm: '30%' } }}>
+          <DebouncedInput
+            value={globalFilter ?? ''}
+            onFilterChange={(value) => setGlobalFilter(String(value))}
+            placeholder={`Search ${totalRows} records...`}
+            style={{ width: '100%' }}
+          />
+        </Box>
+
         <CSVExport data={table.getRowModel().rows.map((row) => row.original)} headers={headers} filename="payments.csv" />
       </Stack>
 

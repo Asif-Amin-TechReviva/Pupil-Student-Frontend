@@ -24,7 +24,7 @@ import { openSnackbar } from 'api/snackbar';
 export default function AuthForgotPassword() {
   const scriptedRef = useScriptRef();
   const navigate = useNavigate();
-
+const codeVerificationFor = "forgotPassword"
   const { isLoggedIn, sendOtp } = useAuth();
 
   return (
@@ -53,9 +53,9 @@ export default function AuthForgotPassword() {
                   }
                 });
                 setTimeout(() => {
-                  navigate('/auth/code-verification', { state: { isAuthenticating: true } });
-                  // navigate(isLoggedIn ? '/auth/check-mail' : '/check-mail', { replace: true });
+                  navigate('/auth/code-verification', { state: { isAuthenticating: true, codeVerificationFor: 'forgotPassword' } });
                 }, 1500);
+
               },
               (err) => {
                 setStatus({ success: false });
@@ -120,3 +120,4 @@ export default function AuthForgotPassword() {
     </>
   );
 }
+

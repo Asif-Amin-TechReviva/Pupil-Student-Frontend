@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 
 // assets
 import { I24Support, MessageProgramming ,Bank} from 'iconsax-react';
+import { color } from '@mui/system';
 
 // type
 
@@ -39,7 +40,7 @@ const Fee= {
           id: 'Fee-Enquiry',
           title: <FormattedMessage id="Pay-Online" />,
           type: 'item',
-          url: '/fee/pay-online',
+          url: '/fee/online-payments',
           breadcrumbs: false,
 
           // target: true

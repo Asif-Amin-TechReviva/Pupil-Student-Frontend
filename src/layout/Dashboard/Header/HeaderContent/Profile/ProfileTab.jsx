@@ -11,31 +11,32 @@ import ListItemText from '@mui/material/ListItemText';
 // assets
 import { Card, Edit2, Logout, Profile, Profile2User } from 'iconsax-react';
 
-export default function ProfileTab({ handleLogout }) {
+export default function ProfileTab({ handleLogout ,handleClose}) {
   const navigate = useNavigate();
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(() => {
+    // Set initial selectedIndex based on current route
+    if (location.pathname.includes('/apps/profiles/account/basic')) return 0;
+    if (location.pathname.includes('/apps/profiles/user/personal')) return 1;
+    if (location.pathname.includes('/apps/profiles/account/password')) return 3;
+    return '';
+  });
   const handleListItemClick = (event, index, route = '') => {
+    event.stopPropagation();
     setSelectedIndex(index);
 
-    if (route && route !== '') {
+    if (route) {
       navigate(route);
     }
+    handleClose();
   };
 
   return (
-    <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>
-     
+    <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>  
       <ListItemButton selected={selectedIndex === 0} onClick={(event) => handleListItemClick(event, 0, '/apps/profiles/account/basic')}>
         <ListItemIcon>
           <Profile variant="Bulk" size={18} />
         </ListItemIcon>
         <ListItemText primary="View Profile" />
-      </ListItemButton>
-      <ListItemButton selected={selectedIndex === 1} onClick={(event) => handleListItemClick(event, 1, '/apps/profiles/user/personal')}>
-        <ListItemIcon>
-          <Edit2 variant="Bulk" size={18} />
-        </ListItemIcon>
-        <ListItemText primary="Edit Profile" />
       </ListItemButton>
       <ListItemButton selected={selectedIndex === 3} onClick={(event) => handleListItemClick(event, 3, '/apps/profiles/account/password')}>
         <ListItemIcon>
@@ -43,12 +44,6 @@ export default function ProfileTab({ handleLogout }) {
         </ListItemIcon>
         <ListItemText primary="Change Password" />
       </ListItemButton>
-      {/* <ListItemButton selected={selectedIndex === 4} onClick={(event) => handleListItemClick(event, 4, '/apps/invoice/details/1')}>
-        <ListItemIcon>
-          <Card variant="Bulk" size={18} />
-        </ListItemIcon>
-        <ListItemText primary="Billing" />
-      </ListItemButton> */}
       <ListItemButton selected={selectedIndex === 2} onClick={handleLogout}>
         <ListItemIcon>
           <Logout variant="Bulk" size={18} />

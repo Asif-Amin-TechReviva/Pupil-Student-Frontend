@@ -141,12 +141,13 @@ ReactTable.propTypes = {
 // ==============================|| REACT TABLE - BASIC ||============================== //
 
 export default function TabAttendance() {
+  const calendarFrom = 'profile'
   return (
     <>
       <Grid container spacing={2}>
         <Grid item xs={12} md={12}>
           <MainCard>
-            <Calendar />
+            <Calendar calendarFrom = {calendarFrom}/>
           </MainCard>
         </Grid>
         {/* <Grid item xs={12} md={12}>

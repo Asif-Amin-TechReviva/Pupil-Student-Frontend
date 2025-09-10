@@ -81,12 +81,9 @@ export default function ProfilePage() {
     setOpen((prevOpen) => !prevOpen);
   };
 
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-    setOpen(false);
-  };
+ const handleClose = () => {
+  setOpen(false);
+};
 
   const [value, setValue] = useState(0);
 
@@ -189,7 +186,7 @@ export default function ProfilePage() {
                     </Tabs>
                   </Box>
                   <TabPanel value={value} index={0} dir={theme.direction}>
-                    <ProfileTab handleLogout={handleLogout} />
+                    <ProfileTab handleLogout={handleLogout} handleClose={handleClose} />
                   </TabPanel>
                   {/* <TabPanel value={value} index={1} dir={theme.direction}>
                     <SettingTab />

@@ -8,11 +8,14 @@ import Grid from '@mui/material/Grid';
 import AuthCard from './AuthCard';
 
 // assets
-import AuthSideImg from 'assets/images/auth/login2.jpg';
+import AuthSideImg from 'assets/images/auth/login1.png';
+import { useTheme, useMediaQuery } from '@mui/material';
 
 // ==============================|| AUTHENTICATION - WRAPPER ||============================== //
 
 export default function AuthWrapper2({ children }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   return (
     <Box sx={{ minHeight: '100vh' }}>
       <Grid
@@ -24,7 +27,9 @@ export default function AuthWrapper2({ children }) {
           bgcolor: 'background.paper'
         }}
       >
-        <Grid item xs={12} style={{backgroundColor:'#fcfbfb'}}>
+        <Grid item xs={12} style={{
+        backgroundColor: isMobile ? '#ffffff' : '#f8f8f4'
+      }}>
           <Grid
             item
             xs={12}
@@ -33,10 +38,10 @@ export default function AuthWrapper2({ children }) {
             alignItems="center"
             sx={{ minHeight: { xs: 'calc(100vh - 210px)', sm: 'calc(100vh - 134px)', md: 'calc(100vh - 112px)' } }}
           >
-            <Grid item md={7} sx={{ display: { xs: 'none', md: 'flex' }, alignSelf: 'center', justifyContent: 'flex-start' }}>
-              <img src={AuthSideImg} alt="Authimg" style={{ height: '100vh', minHeight: '100%', width: '100%' }} />
+            <Grid item md={8} sx={{ display: { xs: 'none', md: 'flex' }, alignSelf: 'center', justifyContent: 'flex-start' }}>
+              <img src={AuthSideImg} alt="Authimg" style={{ height: '100vh', minHeight: '100%', width: '103.5%', objectFit: 'contain' }} />
             </Grid>
-            <Grid item md={5} sx={{ display: 'flex', justifyContent: 'center' }} >
+            <Grid item md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
               <AuthCard border={false}>{children}</AuthCard>
             </Grid>
           </Grid>

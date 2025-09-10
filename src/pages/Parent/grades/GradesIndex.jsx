@@ -1,16 +1,3 @@
-// import React from 'react'
-// import QuickLinks from "../../components/QuickLinks"
-// import SwitchButton from 'components/SwitchButton'
-// const Grades = () => {
-//   return (
-//    <>
-//    <QuickLinks/>
-//    <SwitchButton/>
-//    </>
-//   )
-// }
-
-// export default Grades
 
 import React, { useState } from 'react';
 import QuickLinks from '../../../components/QuickLinks';

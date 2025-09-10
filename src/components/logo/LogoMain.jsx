@@ -51,7 +51,7 @@ export default function LogoMain() {
     //   </svg>
     // </>
     <img
-      src={theme.palette.mode === 'dark' ? logoDark : logo}
+      src={theme.palette.mode === 'dark' ? logo : logo}
       alt="icon logo"
       width="100"
     />

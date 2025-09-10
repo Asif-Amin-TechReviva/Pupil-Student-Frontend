@@ -16,7 +16,9 @@ export const endpoints = {
 };
 
 export function useGetMenu() {
-  const { data, isLoading, error, isValidating } = useSWR(endpoints.key + endpoints.dashboard, fetcher, {
+  // const { data, isLoading, error, isValidating } = useSWR(endpoints.key + endpoints.dashboard, fetcher, {
+
+  const { data, isLoading, error, isValidating } = useSWR(endpoints.key + endpoints.dashboard, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false

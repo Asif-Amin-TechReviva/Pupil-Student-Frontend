@@ -20,7 +20,7 @@ export default function DrawerContent({ searchValue }) {
       }}
     >
       <Box sx={{ p: 3, pt: 1.5 }}>
-        <Navigation searchValue={searchValue} />
+        <Navigation searchValue={searchValue} />/
       </Box>
     </SimpleBar>
   );
